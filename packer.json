@@ -1,0 +1,56 @@
+{
+  "builders": [
+    {
+      "type": "openstack",
+      "ssh_username": "ubuntu",
+      "ssh_timeout": "30m",
+      "image_name": "Github Actions Runner",
+      "source_image": "d853edd0-27b3-4385-a380-248ac8e40956",
+      "networks": "298117ae-3fa4-4109-9e08-8be5602be5a2",
+      "flavor": "df3c499a-044f-41d2-8612-d303adc613cc",
+      "security_groups": [
+        "default",
+        "all"
+      ],
+      "volume_type": "ms1",
+      "volume_size": "10",
+      "use_blockstorage_volume": true,
+      "image_min_disk": "10",
+      "config_drive": "true"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "environment_vars": [
+        "DEBIAN_FRONTEND=noninteractive"
+      ],
+      "inline": [
+        "apt-get update",
+        "apt-get dist-upgrade -y",
+        "apt-get install -y apt-transport-https ca-certificates curl tar jq build-essential gnupg2 software-properties-common",
+        "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
+        "add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"",
+        "apt-get update",
+        "apt-get install -y docker-ce",
+        "usermod -aG docker ubuntu"
+      ],
+      "execute_command": "sudo -S sh -c '{{ .Vars }} {{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "environment_vars": [
+        "DEBIAN_FRONTEND=noninteractive"
+      ],
+      "inline": [
+        "curl -f -o actions.tar.gz --location \"https://github.com/actions/runner/releases/download/v2.274.2/actions-runner-linux-x64-2.274.2.tar.gz\"",
+        "mkdir /runner",
+        "mkdir /runner-tmp",
+        "tar -zxf actions.tar.gz --directory /runner",
+        "rm -f actions.tar.gz",
+        "/runner/bin/installdependencies.sh"
+      ],
+      "execute_command": "sudo -S sh -c '{{ .Vars }} {{ .Path }}'"
+    }
+  ]
+}
