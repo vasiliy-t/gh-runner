@@ -80,7 +80,7 @@ resource "openstack_compute_instance_v2" "instance" {
   }
 
   //используем внешний cloud config
-  user_data = "${templatefile("cloudconfig.conf", {REPO = "", TOKEN=""})}"
+  user_data = "${templatefile("cloudconfig.conf", {REPO = "${var.repo}", TOKEN="${var.gh_token}"})}"
 
   block_device {
     //id образа "Ubuntu-18.04-Standard"
